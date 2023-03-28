@@ -8,6 +8,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -97,6 +98,8 @@ func getConfig() *types.Configuration {
 	v.SetDefault("Alertmanager.CheckCert", true)
 	v.SetDefault("Alertmanager.Endpoint", "/api/v1/alerts")
 	v.SetDefault("Alertmanager.ExpiresAfter", 0)
+	v.SetDefault("Alertmanager.DropEventDefaultPriority", "critical")
+	v.SetDefault("Alertmanager.DropEventThresholdList", ``)
 
 	v.SetDefault("Elasticsearch.HostPort", "")
 	v.SetDefault("Elasticsearch.Index", "falco")
@@ -547,6 +550,15 @@ func getConfig() *types.Configuration {
 	if c.Prometheus.ExtraLabels != "" {
 		c.Prometheus.ExtraLabelsList = strings.Split(strings.ReplaceAll(c.Prometheus.ExtraLabels, " ", ""), ",")
 	}
+
+	if len(c.Alertmanager.DropEventThresholdList) > 0 {
+		sort.Slice(c.Alertmanager.DropEventThresholdList, func(i, j int) bool {
+			// The `>` is used to sort in descending order. If you want to sort in ascending order, use `<`.
+			return c.Alertmanager.DropEventThresholdList[i].Value > c.Alertmanager.DropEventThresholdList[j].Value
+		})
+	}
+
+	c.Alertmanager.DropEventDefaultPriority = checkPriority(c.Alertmanager.DropEventDefaultPriority)
 
 	c.Slack.MinimumPriority = checkPriority(c.Slack.MinimumPriority)
 	c.Rocketchat.MinimumPriority = checkPriority(c.Rocketchat.MinimumPriority)

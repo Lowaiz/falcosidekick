@@ -193,15 +193,22 @@ type DiscordOutputConfig struct {
 	MutualTLS       bool
 }
 
+type ThresholdConfig struct {
+	Value    int64        `json:"value" yaml:"value"`
+	Priority PriorityType `json:"priority" yaml:"priority"`
+}
+
 type AlertmanagerOutputConfig struct {
-	HostPort         string
-	MinimumPriority  string
-	CheckCert        bool
-	MutualTLS        bool
-	Endpoint         string
-	ExpiresAfter     int
-	ExtraLabels      map[string]string
-	ExtraAnnotations map[string]string
+	HostPort                 string
+	MinimumPriority          string
+	CheckCert                bool
+	MutualTLS                bool
+	Endpoint                 string
+	ExpiresAfter             int
+	ExtraLabels              map[string]string
+	ExtraAnnotations         map[string]string
+	DropEventThresholdList   []ThresholdConfig
+	DropEventDefaultPriority string
 }
 
 type elasticsearchOutputConfig struct {
